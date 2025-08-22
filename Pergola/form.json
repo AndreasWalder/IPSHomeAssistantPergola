@@ -1,8 +1,7 @@
 {
   "elements": [
-    { "type": "SelectInstance", "name": "ConnectorInstance", "caption": "Connector-Instanz (HAC_*)", "validates": true },
-
-    { "type": "Section", "caption": "Entities" },
+    { "type": "SelectInstance", "name": "ConnectorInstance", "caption": "Connector-Instanz (HAC_*)"},
+    { "type": "Label", "caption": "Entities" },
     { "type": "ValidationTextBox", "name": "LightPergola", "caption": "Entity: LED Dach (light.*)" },
     { "type": "ValidationTextBox", "name": "LightHeizung", "caption": "Entity: Licht Heizung (light.*)" },
     { "type": "ValidationTextBox", "name": "CoverVorne", "caption": "Entity: Vorhang vorne (cover.*)" },
@@ -13,7 +12,7 @@
     { "type": "ValidationTextBox", "name": "CoverEinAus", "caption": "Entity: Einfahren/Ausfahren (cover.*)" }
   ],
   "actions": [
-    { "type": "Section", "caption": "Test-Buttons (verwenden Connector)" },
+    { "type": "Label", "caption": "Test-Buttons (verwenden Connector)" },
 
     { "type": "Label", "caption": "LED Dach" },
     { "type": "Button", "caption": "LED: ON 100%", "onClick": "HAP_TestLightOn($id);" },
