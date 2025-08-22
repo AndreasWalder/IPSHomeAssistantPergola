@@ -51,7 +51,6 @@ class Pergola extends IPSModule
 
     public function RequestAction($Ident, $Value)
     {
-        $this->SendDebug('RequestAction', $Ident . ' => ' . $Value, 0);
         switch ($Ident) {
             case self::VID_LIGHT_POWER:
                 $this->setLightPower((bool)$Value);
@@ -59,7 +58,6 @@ class Pergola extends IPSModule
             case self::VID_LIGHT_DIM:
                 $this->setLightDim((int)$Value);
                 break;
-
             case self::VID_COVER_VORNE:
                 $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), (int)$Value);
                 $this->SetValue(self::VID_COVER_VORNE, 0);
@@ -67,7 +65,6 @@ class Pergola extends IPSModule
             case self::VID_TILT_VORNE:
                 $this->setTilt($this->ReadPropertyString('CoverVorne'), (int)$Value);
                 break;
-
             case self::VID_COVER_HINTEN:
                 $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), (int)$Value);
                 $this->SetValue(self::VID_COVER_HINTEN, 0);
@@ -75,7 +72,6 @@ class Pergola extends IPSModule
             case self::VID_TILT_HINTEN:
                 $this->setTilt($this->ReadPropertyString('CoverHinten'), (int)$Value);
                 break;
-
             case self::VID_COVER_LINKS:
                 $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), (int)$Value);
                 $this->SetValue(self::VID_COVER_LINKS, 0);
@@ -83,7 +79,6 @@ class Pergola extends IPSModule
             case self::VID_TILT_LINKS:
                 $this->setTilt($this->ReadPropertyString('CoverLinks'), (int)$Value);
                 break;
-
             case self::VID_COVER_RECHTS:
                 $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), (int)$Value);
                 $this->SetValue(self::VID_COVER_RECHTS, 0);
@@ -91,7 +86,6 @@ class Pergola extends IPSModule
             case self::VID_TILT_RECHTS:
                 $this->setTilt($this->ReadPropertyString('CoverRechts'), (int)$Value);
                 break;
-
             case self::VID_COVER_LAMELLEN:
                 $this->driveCoverCmd($this->ReadPropertyString('CoverLamellen'), (int)$Value);
                 $this->SetValue(self::VID_COVER_LAMELLEN, 0);
@@ -99,7 +93,6 @@ class Pergola extends IPSModule
             case self::VID_TILT_LAMELLEN:
                 $this->setTilt($this->ReadPropertyString('CoverLamellen'), (int)$Value);
                 break;
-
             case self::VID_COVER_EINAUS:
                 $this->driveCoverCmd($this->ReadPropertyString('CoverEinAus'), (int)$Value);
                 $this->SetValue(self::VID_COVER_EINAUS, 0);
@@ -107,32 +100,27 @@ class Pergola extends IPSModule
             case self::VID_TILT_EINAUS:
                 $this->setTilt($this->ReadPropertyString('CoverEinAus'), (int)$Value);
                 break;
-
             default:
                 throw new Exception("Unknown ident: $Ident");
         }
     }
 
-    // --- Testfunktionen
-    public function TestLightOn()        { $this->setLightPower(true); }
-    public function TestLightOff()       { $this->setLightPower(false); }
-    public function TestLightDim50()     { $this->setLightDim(50); }
-    public function TestCoverOpenVorne() { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 1); }
-
-    // --- Lichtsteuerung
     private function setLightPower(bool $on): void
     {
         $entity = $this->ReadPropertyString('LightPergola');
         $iid = $this->getConnector();
         if ($entity === '' || $iid === 0) return;
 
-        $this->SendDebug('setLightPower', ($on ? 'ON' : 'OFF'), 0);
+        $this->SendDebug(__FUNCTION__, 'ON = ' . var_export($on, true), 0);
+
         if ($on) {
             $result = HAC_TurnOn($iid, 100, null, $entity);
         } else {
             $result = HAC_TurnOff($iid, $entity);
         }
-        $this->SendDebug('LightResponse', $result, 0);
+
+        $this->SendDebug(__FUNCTION__, 'Result = ' . $result, 0);
+
         $this->SetValue(self::VID_LIGHT_POWER, $on);
         if (!$on) $this->SetValue(self::VID_LIGHT_DIM, 0);
     }
@@ -144,41 +132,46 @@ class Pergola extends IPSModule
         $iid = $this->getConnector();
         if ($entity === '' || $iid === 0) return;
 
-        $this->SendDebug('setLightDim', $pct, 0);
+        $this->SendDebug(__FUNCTION__, 'pct = ' . $pct, 0);
+
         $result = HAC_SetPercent($iid, $entity, $pct);
-        $this->SendDebug('DimResponse', $result, 0);
+
+        $this->SendDebug(__FUNCTION__, 'Result = ' . $result, 0);
+
         $this->SetValue(self::VID_LIGHT_DIM, $pct);
         $this->SetValue(self::VID_LIGHT_POWER, $pct > 0);
     }
 
     private function driveCoverCmd(string $entity, int $cmd): void
     {
-        if ($entity === '') return;
         $iid = $this->getConnector();
-        if ($iid === 0) return;
+        if ($entity === '' || $iid === 0) return;
 
-        $this->SendDebug('driveCoverCmd', $entity . ' -> ' . $cmd, 0);
+        $this->SendDebug(__FUNCTION__, "cmd=$cmd entity=$entity", 0);
+
         switch ($cmd) {
-            case 1: $r = HAC_CallService($iid, 'cover', 'open_cover',  ['entity_id' => $entity]); break;
-            case 2: $r = HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]); break;
-            default:$r = HAC_CallService($iid, 'cover', 'stop_cover',  ['entity_id' => $entity]); break;
+            case 1: $result = HAC_CallService($iid, 'cover', 'open_cover',  ['entity_id' => $entity]); break;
+            case 2: $result = HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]); break;
+            default: $result = HAC_CallService($iid, 'cover', 'stop_cover', ['entity_id' => $entity]); break;
         }
-        $this->SendDebug('CoverResponse', $r, 0);
+
+        $this->SendDebug(__FUNCTION__, 'Result = ' . $result, 0);
     }
 
     private function setTilt(string $entity, int $pct): void
     {
         $pct = max(0, min(100, $pct));
-        if ($entity === '') return;
         $iid = $this->getConnector();
-        if ($iid === 0) return;
+        if ($entity === '' || $iid === 0) return;
 
-        $this->SendDebug('setTilt', $entity . ' = ' . $pct, 0);
-        $r = HAC_CallService($iid, 'cover', 'set_cover_tilt_position', [
+        $this->SendDebug(__FUNCTION__, "entity=$entity tilt=$pct", 0);
+
+        $result = HAC_CallService($iid, 'cover', 'set_cover_tilt_position', [
             'entity_id'     => $entity,
             'tilt_position' => $pct
         ]);
-        $this->SendDebug('TiltResponse', $r, 0);
+
+        $this->SendDebug(__FUNCTION__, 'Result = ' . $result, 0);
     }
 
     private function createVariables(): void
