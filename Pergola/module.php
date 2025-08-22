@@ -28,7 +28,6 @@ class Pergola extends IPSModule
     public function Create()
     {
         parent::Create();
-        // Connector + Entities
         $this->RegisterPropertyInteger('ConnectorInstance', 0);
 
         $this->RegisterPropertyString('LightPergola', '');
@@ -50,11 +49,10 @@ class Pergola extends IPSModule
         parent::ApplyChanges();
     }
 
-    // -------- WebFront Actions --------
     public function RequestAction($Ident, $Value)
     {
+        $this->SendDebug('RequestAction', $Ident . ' => ' . $Value, 0);
         switch ($Ident) {
-            // Light
             case self::VID_LIGHT_POWER:
                 $this->setLightPower((bool)$Value);
                 break;
@@ -62,7 +60,6 @@ class Pergola extends IPSModule
                 $this->setLightDim((int)$Value);
                 break;
 
-            // Cover Sammelvariablen
             case self::VID_COVER_VORNE:
                 $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), (int)$Value);
                 $this->SetValue(self::VID_COVER_VORNE, 0);
@@ -116,68 +113,30 @@ class Pergola extends IPSModule
         }
     }
 
-    // -------- Formular-Buttons (Tests) --------
-    public function TestLightOn()   { $this->setLightPower(true); }
-    public function TestLightOff()  { $this->setLightPower(false); }
-    public function TestLightDim50(){ $this->setLightDim(50); }
+    // --- Testfunktionen
+    public function TestLightOn()        { $this->setLightPower(true); }
+    public function TestLightOff()       { $this->setLightPower(false); }
+    public function TestLightDim50()     { $this->setLightDim(50); }
+    public function TestCoverOpenVorne() { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 1); }
 
-    public function TestCoverOpenVorne()   { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 1); }
-    public function TestCoverCloseVorne()  { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 2); }
-    public function TestCoverStopVorne()   { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 0); }
-    public function TestTiltVorne50()      { $this->setTilt($this->ReadPropertyString('CoverVorne'), 50); }
-
-    public function TestCoverOpenHinten()  { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 1); }
-    public function TestCoverCloseHinten() { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 2); }
-    public function TestCoverStopHinten()  { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 0); }
-    public function TestTiltHinten50()     { $this->setTilt($this->ReadPropertyString('CoverHinten'), 50); }
-
-    public function TestCoverOpenLinks()   { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 1); }
-    public function TestCoverCloseLinks()  { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 2); }
-    public function TestCoverStopLinks()   { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 0); }
-    public function TestTiltLinks50()      { $this->setTilt($this->ReadPropertyString('CoverLinks'), 50); }
-
-    public function TestCoverOpenRechts()  { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 1); }
-    public function TestCoverCloseRechts() { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 2); }
-    public function TestCoverStopRechts()  { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 0); }
-    public function TestTiltRechts50()     { $this->setTilt($this->ReadPropertyString('CoverRechts'), 50); }
-
-    public function TestCoverOpenLamellen(){ $this->driveCoverCmd($this->ReadPropertyString('CoverLamellen'), 1); }
-    public function TestCoverCloseLamellen(){ $this->driveCoverCmd($this->ReadPropertyString('CoverLamellen'), 2); }
-    public function TestCoverStopLamellen(){ $this->driveCoverCmd($this->ReadPropertyString('CoverLamellen'), 0); }
-    public function TestTiltLamellen50()   { $this->setTilt($this->ReadPropertyString('CoverLamellen'), 50); }
-
-    public function TestCoverOpenEinAus()  { $this->driveCoverCmd($this->ReadPropertyString('CoverEinAus'), 1); }
-    public function TestCoverCloseEinAus() { $this->driveCoverCmd($this->ReadPropertyString('CoverEinAus'), 2); }
-    public function TestCoverStopEinAus()  { $this->driveCoverCmd($this->ReadPropertyString('CoverEinAus'), 0); }
-    public function TestTiltEinAus50()     { $this->setTilt($this->ReadPropertyString('CoverEinAus'), 50); }
-
-    // -------- Logik --------
+    // --- Lichtsteuerung
     private function setLightPower(bool $on): void
     {
         $entity = $this->ReadPropertyString('LightPergola');
         $iid = $this->getConnector();
-        $this->SendDebug(__FUNCTION__, "Entity: $entity / Power: " . ($on ? 'ON' : 'OFF'), 0);
-    
-        if ($entity === '' || $iid === 0) {
-            $this->SendDebug(__FUNCTION__, 'Abbruch: Entity oder Connector leer', 0);
-            return;
-        }
-    
+        if ($entity === '' || $iid === 0) return;
+
+        $this->SendDebug('setLightPower', ($on ? 'ON' : 'OFF'), 0);
         if ($on) {
             $result = HAC_TurnOn($iid, 100, null, $entity);
         } else {
             $result = HAC_TurnOff($iid, $entity);
         }
-    
+        $this->SendDebug('LightResponse', $result, 0);
         $this->SetValue(self::VID_LIGHT_POWER, $on);
-        if (!$on) {
-            $this->SetValue(self::VID_LIGHT_DIM, 0);
-        }
-    
-        $this->SendDebug(__FUNCTION__, 'Antwort: ' . json_encode($result), 0);
+        if (!$on) $this->SetValue(self::VID_LIGHT_DIM, 0);
     }
 
-    
     private function setLightDim(int $pct): void
     {
         $pct = max(0, min(100, $pct));
@@ -185,66 +144,51 @@ class Pergola extends IPSModule
         $iid = $this->getConnector();
         if ($entity === '' || $iid === 0) return;
 
-        HAC_SetPercent($iid, $entity, $pct);
+        $this->SendDebug('setLightDim', $pct, 0);
+        $result = HAC_SetPercent($iid, $entity, $pct);
+        $this->SendDebug('DimResponse', $result, 0);
         $this->SetValue(self::VID_LIGHT_DIM, $pct);
         $this->SetValue(self::VID_LIGHT_POWER, $pct > 0);
     }
 
     private function driveCoverCmd(string $entity, int $cmd): void
     {
+        if ($entity === '') return;
         $iid = $this->getConnector();
-        $this->SendDebug(__FUNCTION__, "Entity: $entity / Command: $cmd", 0);
-    
-        if ($entity === '' || $iid === 0) {
-            $this->SendDebug(__FUNCTION__, 'Abbruch: Entity oder Connector leer', 0);
-            return;
-        }
-    
-        switch ($cmd) {
-            case 1:
-                $result = HAC_CallService($iid, 'cover', 'open_cover', ['entity_id' => $entity]);
-                break;
-            case 2:
-                $result = HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]);
-                break;
-            default:
-                $result = HAC_CallService($iid, 'cover', 'stop_cover', ['entity_id' => $entity]);
-                break;
-        }
-    
-        $this->SendDebug(__FUNCTION__, 'Antwort: ' . json_encode($result), 0);
-    }
+        if ($iid === 0) return;
 
+        $this->SendDebug('driveCoverCmd', $entity . ' -> ' . $cmd, 0);
+        switch ($cmd) {
+            case 1: $r = HAC_CallService($iid, 'cover', 'open_cover',  ['entity_id' => $entity]); break;
+            case 2: $r = HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]); break;
+            default:$r = HAC_CallService($iid, 'cover', 'stop_cover',  ['entity_id' => $entity]); break;
+        }
+        $this->SendDebug('CoverResponse', $r, 0);
+    }
 
     private function setTilt(string $entity, int $pct): void
     {
+        $pct = max(0, min(100, $pct));
+        if ($entity === '') return;
         $iid = $this->getConnector();
-        $this->SendDebug(__FUNCTION__, "Entity: $entity / Tilt: $pct", 0);
-    
-        if ($entity === '' || $iid === 0) {
-            $this->SendDebug(__FUNCTION__, 'Abbruch: Entity oder Connector leer', 0);
-            return;
-        }
-    
-        $result = HAC_CallService($iid, 'cover', 'set_cover_tilt_position', [
+        if ($iid === 0) return;
+
+        $this->SendDebug('setTilt', $entity . ' = ' . $pct, 0);
+        $r = HAC_CallService($iid, 'cover', 'set_cover_tilt_position', [
             'entity_id'     => $entity,
             'tilt_position' => $pct
         ]);
-    
-        $this->SendDebug(__FUNCTION__, 'Antwort: ' . json_encode($result), 0);
+        $this->SendDebug('TiltResponse', $r, 0);
     }
-
 
     private function createVariables(): void
     {
-        // Light
         $this->RegisterVariableBoolean(self::VID_LIGHT_POWER, 'Pergola LED', '~Switch', 10);
         $this->EnableAction(self::VID_LIGHT_POWER);
 
         $this->RegisterVariableInteger(self::VID_LIGHT_DIM, 'Pergola Dimmer %', '~Intensity.100', 20);
         $this->EnableAction(self::VID_LIGHT_DIM);
 
-        // Cover Sammelvariablen (0 Stop, 1 Auf, 2 Zu) und Tilt 0–100
         $this->registerCoverWithTilt(self::VID_COVER_VORNE,  self::VID_TILT_VORNE,  'Vorhang vorne',  30);
         $this->registerCoverWithTilt(self::VID_COVER_HINTEN, self::VID_TILT_HINTEN, 'Vorhang hinten', 40);
         $this->registerCoverWithTilt(self::VID_COVER_LINKS,  self::VID_TILT_LINKS,  'Vorhang links',  50);
@@ -266,10 +210,10 @@ class Pergola extends IPSModule
     private function ensureProfiles(): void
     {
         if (!IPS_VariableProfileExists('HAP.CoverCmd')) {
-            IPS_CreateVariableProfile('HAP.CoverCmd', 1 /* Integer */);
+            IPS_CreateVariableProfile('HAP.CoverCmd', 1);
             IPS_SetVariableProfileAssociation('HAP.CoverCmd', 0, 'Stopp', '', -1);
-            IPS_SetVariableProfileAssociation('HAP.CoverCmd', 1, 'Auf',   '', -1);
-            IPS_SetVariableProfileAssociation('HAP.CoverCmd', 2, 'Zu',    '', -1);
+            IPS_SetVariableProfileAssociation('HAP.CoverCmd', 1, 'Auf', '', -1);
+            IPS_SetVariableProfileAssociation('HAP.CoverCmd', 2, 'Zu', '', -1);
         }
     }
 
