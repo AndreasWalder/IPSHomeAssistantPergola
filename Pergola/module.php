@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-class HAPergola extends IPSModule
+class Pergola extends IPSModule
 {
     // Sammelvariable-Idents
     private const VID_LIGHT_POWER      = 'LightPergolaPower';
@@ -117,29 +117,29 @@ class HAPergola extends IPSModule
     }
 
     // -------- Formular-Buttons (Tests) --------
-    public function TestLightOn()  { $this->setLightPower(true); }
-    public function TestLightOff() { $this->setLightPower(false); }
+    public function TestLightOn()   { $this->setLightPower(true); }
+    public function TestLightOff()  { $this->setLightPower(false); }
     public function TestLightDim50(){ $this->setLightDim(50); }
 
-    public function TestCoverOpenVorne()  { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 1); }
-    public function TestCoverCloseVorne() { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 2); }
-    public function TestCoverStopVorne()  { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 0); }
-    public function TestTiltVorne50()     { $this->setTilt($this->ReadPropertyString('CoverVorne'), 50); }
+    public function TestCoverOpenVorne()   { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 1); }
+    public function TestCoverCloseVorne()  { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 2); }
+    public function TestCoverStopVorne()   { $this->driveCoverCmd($this->ReadPropertyString('CoverVorne'), 0); }
+    public function TestTiltVorne50()      { $this->setTilt($this->ReadPropertyString('CoverVorne'), 50); }
 
-    public function TestCoverOpenHinten() { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 1); }
-    public function TestCoverCloseHinten(){ $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 2); }
-    public function TestCoverStopHinten() { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 0); }
-    public function TestTiltHinten50()    { $this->setTilt($this->ReadPropertyString('CoverHinten'), 50); }
+    public function TestCoverOpenHinten()  { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 1); }
+    public function TestCoverCloseHinten() { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 2); }
+    public function TestCoverStopHinten()  { $this->driveCoverCmd($this->ReadPropertyString('CoverHinten'), 0); }
+    public function TestTiltHinten50()     { $this->setTilt($this->ReadPropertyString('CoverHinten'), 50); }
 
-    public function TestCoverOpenLinks()  { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 1); }
-    public function TestCoverCloseLinks() { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 2); }
-    public function TestCoverStopLinks()  { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 0); }
-    public function TestTiltLinks50()     { $this->setTilt($this->ReadPropertyString('CoverLinks'), 50); }
+    public function TestCoverOpenLinks()   { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 1); }
+    public function TestCoverCloseLinks()  { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 2); }
+    public function TestCoverStopLinks()   { $this->driveCoverCmd($this->ReadPropertyString('CoverLinks'), 0); }
+    public function TestTiltLinks50()      { $this->setTilt($this->ReadPropertyString('CoverLinks'), 50); }
 
-    public function TestCoverOpenRechts() { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 1); }
-    public function TestCoverCloseRechts(){ $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 2); }
-    public function TestCoverStopRechts() { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 0); }
-    public function TestTiltRechts50()    { $this->setTilt($this->ReadPropertyString('CoverRechts'), 50); }
+    public function TestCoverOpenRechts()  { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 1); }
+    public function TestCoverCloseRechts() { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 2); }
+    public function TestCoverStopRechts()  { $this->driveCoverCmd($this->ReadPropertyString('CoverRechts'), 0); }
+    public function TestTiltRechts50()     { $this->setTilt($this->ReadPropertyString('CoverRechts'), 50); }
 
     public function TestCoverOpenLamellen(){ $this->driveCoverCmd($this->ReadPropertyString('CoverLamellen'), 1); }
     public function TestCoverCloseLamellen(){ $this->driveCoverCmd($this->ReadPropertyString('CoverLamellen'), 2); }
@@ -186,15 +186,9 @@ class HAPergola extends IPSModule
         if ($iid === 0) return;
 
         switch ($cmd) {
-            case 1: // Open
-                HAC_CallService($iid, 'cover', 'open_cover', ['entity_id' => $entity]);
-                break;
-            case 2: // Close
-                HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]);
-                break;
-            default: // 0 -> Stop
-                HAC_CallService($iid, 'cover', 'stop_cover', ['entity_id' => $entity]);
-                break;
+            case 1: HAC_CallService($iid, 'cover', 'open_cover',  ['entity_id' => $entity]); break;
+            case 2: HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]); break;
+            default: HAC_CallService($iid, 'cover', 'stop_cover', ['entity_id' => $entity]); break;
         }
     }
 
@@ -213,9 +207,6 @@ class HAPergola extends IPSModule
 
     private function createVariables(): void
     {
-        // Profiles
-        $this->ensureProfiles();
-
         // Light
         $this->RegisterVariableBoolean(self::VID_LIGHT_POWER, 'Pergola LED', '~Switch', 10);
         $this->EnableAction(self::VID_LIGHT_POWER);
