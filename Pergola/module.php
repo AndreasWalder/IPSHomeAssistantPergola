@@ -156,17 +156,28 @@ class Pergola extends IPSModule
     {
         $entity = $this->ReadPropertyString('LightPergola');
         $iid = $this->getConnector();
-        if ($entity === '' || $iid === 0) return;
-
-        if ($on) {
-            HAC_TurnOn($iid, 100, null, $entity);
-        } else {
-            HAC_TurnOff($iid, $entity);
+        $this->SendDebug(__FUNCTION__, "Entity: $entity / Power: " . ($on ? 'ON' : 'OFF'), 0);
+    
+        if ($entity === '' || $iid === 0) {
+            $this->SendDebug(__FUNCTION__, 'Abbruch: Entity oder Connector leer', 0);
+            return;
         }
+    
+        if ($on) {
+            $result = HAC_TurnOn($iid, 100, null, $entity);
+        } else {
+            $result = HAC_TurnOff($iid, $entity);
+        }
+    
         $this->SetValue(self::VID_LIGHT_POWER, $on);
-        if (!$on) $this->SetValue(self::VID_LIGHT_DIM, 0);
+        if (!$on) {
+            $this->SetValue(self::VID_LIGHT_DIM, 0);
+        }
+    
+        $this->SendDebug(__FUNCTION__, 'Antwort: ' . json_encode($result), 0);
     }
 
+    
     private function setLightDim(int $pct): void
     {
         $pct = max(0, min(100, $pct));
@@ -181,29 +192,48 @@ class Pergola extends IPSModule
 
     private function driveCoverCmd(string $entity, int $cmd): void
     {
-        if ($entity === '') return;
         $iid = $this->getConnector();
-        if ($iid === 0) return;
-
-        switch ($cmd) {
-            case 1: HAC_CallService($iid, 'cover', 'open_cover',  ['entity_id' => $entity]); break;
-            case 2: HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]); break;
-            default: HAC_CallService($iid, 'cover', 'stop_cover', ['entity_id' => $entity]); break;
+        $this->SendDebug(__FUNCTION__, "Entity: $entity / Command: $cmd", 0);
+    
+        if ($entity === '' || $iid === 0) {
+            $this->SendDebug(__FUNCTION__, 'Abbruch: Entity oder Connector leer', 0);
+            return;
         }
+    
+        switch ($cmd) {
+            case 1:
+                $result = HAC_CallService($iid, 'cover', 'open_cover', ['entity_id' => $entity]);
+                break;
+            case 2:
+                $result = HAC_CallService($iid, 'cover', 'close_cover', ['entity_id' => $entity]);
+                break;
+            default:
+                $result = HAC_CallService($iid, 'cover', 'stop_cover', ['entity_id' => $entity]);
+                break;
+        }
+    
+        $this->SendDebug(__FUNCTION__, 'Antwort: ' . json_encode($result), 0);
     }
+
 
     private function setTilt(string $entity, int $pct): void
     {
-        $pct = max(0, min(100, $pct));
-        if ($entity === '') return;
         $iid = $this->getConnector();
-        if ($iid === 0) return;
-
-        HAC_CallService($iid, 'cover', 'set_cover_tilt_position', [
+        $this->SendDebug(__FUNCTION__, "Entity: $entity / Tilt: $pct", 0);
+    
+        if ($entity === '' || $iid === 0) {
+            $this->SendDebug(__FUNCTION__, 'Abbruch: Entity oder Connector leer', 0);
+            return;
+        }
+    
+        $result = HAC_CallService($iid, 'cover', 'set_cover_tilt_position', [
             'entity_id'     => $entity,
             'tilt_position' => $pct
         ]);
+    
+        $this->SendDebug(__FUNCTION__, 'Antwort: ' . json_encode($result), 0);
     }
+
 
     private function createVariables(): void
     {
