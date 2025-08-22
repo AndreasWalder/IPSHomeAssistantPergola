@@ -1,0 +1,12 @@
+{
+  "id": "{1B73E2E1-4325-49AC-9C91-000000000100}",
+  "author": "Andreas Walder",
+  "name": "IPSHomeAssistantPergola",
+  "url": "https://github.com/AndreasWalder/IPSHomeAssistantPergola",
+  "compatibility": {
+    "version": "7.0"
+  },
+  "version": "1.0",
+  "build": 1,
+  "date": 20250822
+}

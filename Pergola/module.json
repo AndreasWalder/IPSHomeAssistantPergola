@@ -1,0 +1,11 @@
+{
+  "id": "{7A5B4102-5272-4F7E-AD3A-000000000002}",
+  "name": "Pergola",
+  "type": 5,
+  "vendor": "HomeAssistant",
+  "aliases": ["HA Pergola"],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "HAP"
+}
