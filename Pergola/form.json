@@ -1,1 +1,59 @@
-{ }
+{
+  "elements": [
+    { "type": "SelectInstance", "name": "ConnectorInstance", "caption": "Connector-Instanz (HAC_*)", "validates": true },
+
+    { "type": "Section", "caption": "Entities" },
+    { "type": "ValidationTextBox", "name": "LightPergola", "caption": "Entity: LED Dach (light.*)" },
+    { "type": "ValidationTextBox", "name": "LightHeizung", "caption": "Entity: Licht Heizung (light.*)" },
+    { "type": "ValidationTextBox", "name": "CoverVorne", "caption": "Entity: Vorhang vorne (cover.*)" },
+    { "type": "ValidationTextBox", "name": "CoverHinten", "caption": "Entity: Vorhang hinten (cover.*)" },
+    { "type": "ValidationTextBox", "name": "CoverLinks", "caption": "Entity: Vorhang links (cover.*)" },
+    { "type": "ValidationTextBox", "name": "CoverRechts", "caption": "Entity: Vorhang rechts (cover.*)" },
+    { "type": "ValidationTextBox", "name": "CoverLamellen", "caption": "Entity: Lamellen schwenken (cover.*)" },
+    { "type": "ValidationTextBox", "name": "CoverEinAus", "caption": "Entity: Einfahren/Ausfahren (cover.*)" }
+  ],
+  "actions": [
+    { "type": "Section", "caption": "Test-Buttons (verwenden Connector)" },
+
+    { "type": "Label", "caption": "LED Dach" },
+    { "type": "Button", "caption": "LED: ON 100%", "onClick": "HAP_TestLightOn($id);" },
+    { "type": "Button", "caption": "LED: OFF", "onClick": "HAP_TestLightOff($id);" },
+    { "type": "Button", "caption": "LED: DIM 50%", "onClick": "HAP_TestLightDim50($id);" },
+
+    { "type": "Label", "caption": "Vorhang vorne" },
+    { "type": "Button", "caption": "OPEN", "onClick": "HAP_TestCoverOpenVorne($id);" },
+    { "type": "Button", "caption": "CLOSE", "onClick": "HAP_TestCoverCloseVorne($id);" },
+    { "type": "Button", "caption": "STOP", "onClick": "HAP_TestCoverStopVorne($id);" },
+    { "type": "Button", "caption": "TILT 50", "onClick": "HAP_TestTiltVorne50($id);" },
+
+    { "type": "Label", "caption": "Vorhang hinten" },
+    { "type": "Button", "caption": "OPEN", "onClick": "HAP_TestCoverOpenHinten($id);" },
+    { "type": "Button", "caption": "CLOSE", "onClick": "HAP_TestCoverCloseHinten($id);" },
+    { "type": "Button", "caption": "STOP", "onClick": "HAP_TestCoverStopHinten($id);" },
+    { "type": "Button", "caption": "TILT 50", "onClick": "HAP_TestTiltHinten50($id);" },
+
+    { "type": "Label", "caption": "Vorhang links" },
+    { "type": "Button", "caption": "OPEN", "onClick": "HAP_TestCoverOpenLinks($id);" },
+    { "type": "Button", "caption": "CLOSE", "onClick": "HAP_TestCoverCloseLinks($id);" },
+    { "type": "Button", "caption": "STOP", "onClick": "HAP_TestCoverStopLinks($id);" },
+    { "type": "Button", "caption": "TILT 50", "onClick": "HAP_TestTiltLinks50($id);" },
+
+    { "type": "Label", "caption": "Vorhang rechts" },
+    { "type": "Button", "caption": "OPEN", "onClick": "HAP_TestCoverOpenRechts($id);" },
+    { "type": "Button", "caption": "CLOSE", "onClick": "HAP_TestCoverCloseRechts($id);" },
+    { "type": "Button", "caption": "STOP", "onClick": "HAP_TestCoverStopRechts($id);" },
+    { "type": "Button", "caption": "TILT 50", "onClick": "HAP_TestTiltRechts50($id);" },
+
+    { "type": "Label", "caption": "Lamellen schwenken" },
+    { "type": "Button", "caption": "OPEN", "onClick": "HAP_TestCoverOpenLamellen($id);" },
+    { "type": "Button", "caption": "CLOSE", "onClick": "HAP_TestCoverCloseLamellen($id);" },
+    { "type": "Button", "caption": "STOP", "onClick": "HAP_TestCoverStopLamellen($id);" },
+    { "type": "Button", "caption": "TILT 50", "onClick": "HAP_TestTiltLamellen50($id);" },
+
+    { "type": "Label", "caption": "Einfahren/Ausfahren" },
+    { "type": "Button", "caption": "OPEN", "onClick": "HAP_TestCoverOpenEinAus($id);" },
+    { "type": "Button", "caption": "CLOSE", "onClick": "HAP_TestCoverCloseEinAus($id);" },
+    { "type": "Button", "caption": "STOP", "onClick": "HAP_TestCoverStopEinAus($id);" },
+    { "type": "Button", "caption": "TILT 50", "onClick": "HAP_TestTiltEinAus50($id);" }
+  ]
+}
